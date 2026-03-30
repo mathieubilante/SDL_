@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDL - Connexion</title>
+    
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favion_gpt.png') }}" type="image/png">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .login-card {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+
+        /* STYLE POUR TON LOGO AU CENTRE */
+        .logo-img {
+            width: 90px; 
+            height: auto;
+            margin-bottom: 15px;
+            border-radius: 50%; /* Arrondi le logo si c'est un cercle, sinon enlève cette ligne */
+            border: 2px solid #3b82f6;
+            padding: 5px;
+            background: #0f172a;
+        }
+
+        .login-card h2 {
+            color: #3b82f6;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-card p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .alert {
+            padding: 12px;
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid #ef4444;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* --- ZONE DE SAISIE : FOND BLANC / TEXTE NOIR --- */
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 2px solid #334155;
+            background: #ffffff; /* Fond blanc */
+            color: #000000;      /* Texte noir */
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .input-group input::placeholder {
+            color: #94a3b8;
+            font-weight: normal;
+        }
+
+        .input-group input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+        }
+
+        /* ICÔNE DE L'ŒIL (AFFICHER/CACHER) */
+        #togglePassword {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #475569;
+            font-size: 1.1rem;
+            z-index: 10;
+        }
+
+        #togglePassword:hover {
+            color: #3b82f6;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #3b82f6;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .btn-login:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .footer-links {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .footer-links a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <img src="{{ url_for('static', filename='favion_gpt.png') }}" alt="Logo SDL" class="logo-img">
+        
+        <h2>SDL <span style="color: white; font-weight: 300;">LAB</span></h2>
+        <p>Intelligence Académique pour Ingénieurs</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert">
+                        <i class="fas fa-exclamation-circle"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('connexion') }}">
+            <div class="input-group">
+                <label><i class="fas fa-user"></i> Nom d'utilisateur</label>
+                <input type="text" name="username" placeholder="Votre matricule ou pseudo" required>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Mot de passe</label>
+                <div class="password-container">
+                    <input type="password" name="password" id="passwordField" placeholder="••••••••" required>
+                    <i class="fas fa-eye" id="togglePassword"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">S'authentifier</button>
+        </form>
+
+        <div class="footer-links">
+            Pas encore inscrit ? <a href="/inscription">Rejoindre le Labo</a>
+        </div>
+    </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordField = document.querySelector('#passwordField');
+
+        // Fonction pour afficher/cacher le mot de passe
+        togglePassword.addEventListener('click', function () {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            // On change l'icône entre œil ouvert et œil barré
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
+
+</body>
+</html>

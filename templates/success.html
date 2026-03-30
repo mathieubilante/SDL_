@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDL - Inscription Réussie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            color: white;
+        }
+        .success-card {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 100%; max-width: 450px;
+            border: 1px solid #10b981; /* Bordure verte pour le succès */
+            text-align: center;
+        }
+        .icon-box {
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+        .info-box {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: left;
+            border: 1px dashed #334155;
+        }
+        .label { color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; }
+        .value { color: #3b82f6; font-weight: bold; font-size: 1.2rem; display: block; margin-bottom: 10px; }
+        .btn-start {
+            display: inline-block;
+            width: 100%;
+            padding: 15px;
+            background: #10b981;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-start:hover { background: #059669; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <div class="success-card">
+        <div class="icon-box">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>Inscription Terminée !</h2>
+        <p style="color: #94a3b8;">Bienvenue au Smart Decision Lab. Note bien tes identifiants de connexion :</p>
+
+        <div class="info-box">
+            <span class="label">Nom d'utilisateur :</span>
+            <span class="value">{{ user }}</span>
+            
+            <span class="label">Mot de passe provisoire :</span>
+            <span class="value" style="color: #f59e0b;">{{ password }}</span>
+        </div>
+
+        <p style="font-size: 0.8rem; color: #ef4444; margin-bottom: 20px;">
+            <i class="fas fa-exclamation-triangle"></i> Attention : ce mot de passe ne s'affichera qu'une seule fois !
+        </p>
+
+        <a href="/index" class="btn-start">Accéder au Tableau de Bord</a>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDL - PLANIFICATEUR</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            color: #94a3b8;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .back-link:hover {
+            color: #3b82f6;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            border: 1px solid #334155;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+
+        h2 {
+            color: #3b82f6;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+        }
+
+        .student-info {
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .timer-display {
+            font-size: 5.5rem;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+            color: #10b981;
+            text-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+            margin: 25px 0;
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            min-width: 320px;
+        }
+
+        .form-group input {
+            width: 85%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 15px 35px;
+            font-size: 1rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-start { background: #10b981; color: white; }
+        .btn-start:hover:not(:disabled) { background: #059669; transform: scale(1.05); }
+        .btn-start:disabled { background: #1e293b; color: #475569; cursor: not-allowed; border: 1px solid #334155; }
+
+        .btn-pause { background: #f59e0b; color: white; }
+        .btn-pause:hover { background: #d97706; transform: scale(1.05); }
+
+        .btn-stop { background: #ef4444; color: white; }
+        .btn-stop:hover { background: #dc2626; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/index" class="back-link"><i class="fas fa-arrow-left"></i> Retour au Labo</a>
+
+        <div class="card">
+            <h2><i class="fas fa-microscope"></i> Session de Travail Intensif</h2>
+            <p class="student-info">
+                <strong>{{ user.nom }}</strong> | {{ user.filiere }} (Semestre {{ user.semestre }})
+            </p>
+
+            <div class="timer-display" id="timer">00:00:00</div>
+
+            <div class="form-group">
+                <input type="text" id="taskName" placeholder="Matière ou chapitre (ex: Architecture des Ordinateurs)">
+            </div>
+
+            <div class="controls">
+                <button class="btn-start" id="startBtn" onclick="startTimer()">
+                    <i class="fas fa-play"></i> Démarrer
+                </button>
+                <button class="btn-pause" onclick="pauseTimer()">
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button class="btn-stop" onclick="stopTimer()">
+                    <i class="fas fa-save"></i> Terminer & Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let startTime = 0, elapsedTime = 0, timerInterval;
+        const timerDisplay = document.getElementById("timer");
+        const startBtn = document.getElementById("startBtn");
+
+        function timeToString(time) {
+            let diffInHrs = time / 3600000;
+            let hh = Math.floor(diffInHrs);
+
+            let diffInMin = (diffInHrs - hh) * 60;
+            let mm = Math.floor(diffInMin);
+
+            let diffInSec = (diffInMin - mm) * 60;
+            let ss = Math.floor(diffInSec);
+
+            return `${hh.toString().padStart(2,"0")}:${mm.toString().padStart(2,"0")}:${ss.toString().padStart(2,"0")}`;
+        }
+
+        function startTimer() {
+            startBtn.disabled = true; // Empêche de lancer plusieurs chronos
+            startTime = Date.now() - elapsedTime;
+            
+            timerInterval = setInterval(function() {
+                elapsedTime = Date.now() - startTime;
+                timerDisplay.textContent = timeToString(elapsedTime);
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            startBtn.disabled = false;
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            startBtn.disabled = false;
+
+            let task = document.getElementById("taskName").value || "Révision Générale";
+            let tempsMin = Math.ceil(elapsedTime / 60000); // On arrondit à la minute supérieure
+
+            if (elapsedTime < 10000) { // Si moins de 10 secondes, on n'enregistre pas
+                alert("Session trop courte pour être enregistrée.");
+                resetChrono();
+                return;
+            }
+
+            // Envoi des données au serveur Python (app.py)
+            fetch('/save_session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    matiere: task, 
+                    duree: tempsMin 
+                })
+            })
+            .then(response => {
+                if(response.ok) {
+                    alert("Félicitations ! Session sur '" + task + "' enregistrée (" + tempsMin + " min).");
+                    window.location.href = "/index";
+                } else {
+                    alert("Erreur lors de l'enregistrement.");
+                }
+            })
+            .catch(err => console.error("Erreur Fetch:", err));
+        }
+
+        function resetChrono() {
+            elapsedTime = 0;
+            timerDisplay.textContent = "00:00:00";
+        }
+    </script>
+</body>
+</html>

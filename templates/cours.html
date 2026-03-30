@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDL - Bibliothèque de Cours</title>
+    
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favion_gpt.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --primary-blue: #3b82f6;
+            --text-gray: #94a3b8;
+            --input-white: #ffffff;
+            --success-green: #10b981;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* --- BOUTON RETOUR --- */
+        .back-nav {
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            padding: 8px 15px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn-back:hover {
+            color: white;
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateX(-5px);
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* --- ZONE D'UPLOAD STYLISÉE --- */
+        .upload-card {
+            background: rgba(59, 130, 246, 0.05);
+            border: 2px dashed var(--primary-blue);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .upload-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-form input[type="text"] {
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            background: var(--input-white);
+            color: #000;
+            min-width: 250px;
+            outline: none;
+        }
+
+        /* CACHER LE BOUTON FICHIER PAR DÉFAUT */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .btn-file {
+            background: #475569;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-block;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-file:hover { background: #64748b; }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0; /* Devient invisible mais reste cliquable */
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .btn-submit-upload {
+            background: var(--success-green);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-submit-upload:hover { background: #059669; transform: scale(1.02); }
+
+        /* --- RECHERCHE --- */
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto 40px auto;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border-radius: 30px;
+            border: 2px solid #334155;
+            background: var(--input-white);
+            color: #000;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        /* --- GRILLE DES COURS --- */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .course-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid #334155;
+            text-align: center;
+            position: relative;
+        }
+
+        .course-icon { font-size: 2.5rem; color: var(--primary-blue); margin-bottom: 10px; }
+        .course-card h3 { margin: 10px 0; font-size: 1.2rem; }
+        .btn-download {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--primary-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        #file-name-display {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--primary-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="back-nav">
+            <a href="{{ url_for('index') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Retour au Tableau de Bord
+            </a>
+        </div>
+
+        <div class="header-section">
+            <img src="{{ url_for('static', filename='favion_gpt.png') }}" alt="Logo" style="width: 60px; margin-bottom: 10px;">
+            <h1>Bibliothèque Collaborative</h1>
+        </div>
+
+        <div class="upload-card">
+            <h2 style="color: var(--primary-blue); margin-top: 0;"><i class="fas fa-upload"></i> Partager un Document</h2>
+            <form class="upload-form" action="/ajouter-cours" method="POST" enctype="multipart/form-data">
+                
+                <input type="text" name="titre" placeholder="Nom du cours (ex: TP Optique)" required>
+
+                <div class="file-input-wrapper">
+                    <div class="btn-file"><i class="fas fa-file-import"></i> Choisir le PDF</div>
+                    <input type="file" name="fichier" id="file-input" accept=".pdf,.doc,.docx" required>
+                </div>
+
+                <button type="submit" class="btn-submit-upload">Publier sur le Lab</button>
+            </form>
+            <span id="file-name-display">Aucun fichier sélectionné</span>
+        </div>
+
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Rechercher une matière..." onkeyup="filterCourses()">
+        </div>
+
+        <div class="courses-grid" id="coursesGrid">
+            <div class="course-card">
+                <div class="course-icon"><i class="fas fa-microchip"></i></div>
+                <h3>ATO</h3>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">Architecture des Ordinateurs</p>
+                <a href="#" class="btn-download"><i class="fas fa-download"></i> PDF</a>
+            </div>
+            </div>
+
+    </div>
+
+    <script>
+        // Affiche le nom du fichier quand on le choisit
+        document.getElementById('file-input').onchange = function () {
+            document.getElementById('file-name-display').innerHTML = "<i class='fas fa-check'></i> Prêt : " + this.files[0].name;
+        };
+
+        function filterCourses() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.getElementsByClassName('course-card');
+            for (let i = 0; i < cards.length; i++) {
+                let title = cards[i].querySelector('h3').innerText.toLowerCase();
+                cards[i].style.display = title.includes(input) ? "block" : "none";
+            }
+        }
+    </script>
+</body>
+</html>

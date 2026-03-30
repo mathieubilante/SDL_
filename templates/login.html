@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDL - Portail d'Accès</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Styles pour le sélecteur de rôle */
+        .role-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .role-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(30, 41, 59, 0.5);
+        }
+        .role-option i { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+        .role-option.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .role-option.active.admin-role { border-color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
+        
+        #adminForm { display: none; } /* Caché par défaut */
+        
+        .admin-badge {
+            background: #8b5cf6;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>SDL SMART DECISION LAB</h2>
+        <p id="portal-subtitle">Choisissez votre espace pour continuer</p>
+
+        <div class="role-selector">
+            <div class="role-option active" id="btnEtudiant" onclick="switchRole('etudiant')">
+                <i class="fas fa-user-graduate"></i>
+                <span>Étudiant</span>
+            </div>
+            <div class="role-option admin-role" id="btnAdmin" onclick="switchRole('admin')">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ef4444; text-align: center; font-size: 0.9rem;">
+                        <i class="fas fa-exclamation-circle"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form id="etudiantForm" action="/register" method="POST">
+            <div class="form-group">
+                <label>Nom de famille</label>
+                <input type="text" name="nom" placeholder="Ex: KOFFI" required>
+            </div>
+
+            <div class="form-group">
+                <label>Prénom</label>
+                <input type="text" name="prenom" placeholder="Ex: Jean" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="etudiant@univ-lome.tg" required>
+            </div>
+
+            <div class="form-group">
+                <label>Filière & Semestre</label>
+                <div style="display: flex; gap: 10px;">
+                    <select name="filiere" style="flex: 2;">
+                        <option value="Génie Logiciel">Génie Logiciel (EPL)</option>
+                        <option value="IA & Big Data">IA & Big Data</option>
+                        <option value="Génie Civil">Génie Civil</option>
+                    </select>
+                    <select name="semestre" style="flex: 1;">
+                        {% for i in range(1, 11) %}
+                            <option value="{{ i }}">S{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Générer mes accès <i class="fas fa-user-plus"></i>
+            </button>
+        </form>
+
+        <form id="adminForm" action="/admin_login" method="POST">
+            <div class="form-group">
+                <label>Identifiant Administrateur</label>
+                <input type="text" name="admin_id" placeholder="ID Admin" required>
+            </div>
+
+            <div class="form-group">
+                <label>Code Unique de Sécurité</label>
+                <input type="password" name="admin_code" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-submit" style="background: #8b5cf6;">
+                Accéder au Panel Admin <i class="fas fa-lock-open"></i>
+            </button>
+        </form>
+
+        <div class="switch-auth">
+            Déjà inscrit ? <a href="/connexion">Se connecter ici</a>
+        </div>
+    </div>
+
+    <script>
+        function switchRole(role) {
+            const etudiantForm = document.getElementById('etudiantForm');
+            const adminForm = document.getElementById('adminForm');
+            const btnEtudiant = document.getElementById('btnEtudiant');
+            const btnAdmin = document.getElementById('btnAdmin');
+            const subtitle = document.getElementById('portal-subtitle');
+
+            if (role === 'admin') {
+                etudiantForm.style.display = 'none';
+                adminForm.style.display = 'block';
+                btnAdmin.classList.add('active');
+                btnEtudiant.classList.remove('active');
+                subtitle.innerText = "Espace de gestion des notes et UE";
+            } else {
+                etudiantForm.style.display = 'block';
+                adminForm.style.display = 'none';
+                btnEtudiant.classList.add('active');
+                btnAdmin.classList.remove('active');
+                subtitle.innerText = "Inscrivez-vous pour accéder à votre espace d'ingénieur";
+            }
+        }
+    </script>
+</body>
+</html>

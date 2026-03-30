@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDL - Administration des Notes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --admin-bg: #0f172a;
+            --admin-card: #1e293b;
+            --admin-accent: #8b5cf6; 
+            --danger: #ef4444;
+            --success: #10b981;
+            --text: #f8fafc;
+        }
+
+        body { background-color: var(--admin-bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--admin-accent); padding: 20px;
+            border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .btn-logout { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+        .grid-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 25px; }
+        .card { background: var(--admin-card); padding: 25px; border-radius: 20px; border: 1px solid #334155; }
+        h3 { margin-top: 0; color: var(--admin-accent); display: flex; align-items: center; gap: 10px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #94a3b8; }
+        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+
+        .btn-add { width: 100%; background: var(--admin-accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-add:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; color: #94a3b8; font-size: 0.75rem; padding: 10px; text-transform: uppercase; }
+        td { padding: 12px 10px; border-bottom: 1px solid #1e293b; }
+
+        .input-table { 
+            padding: 8px; width: 65px; text-align: center; border-radius: 6px; 
+            border: 1px solid #334155; background: #0f172a; color: white; 
+            transition: border-color 0.3s;
+        }
+        .btn-del { color: var(--danger); background: none; border: none; cursor: pointer; font-size: 1.1rem; opacity: 0.7; }
+        .btn-del:hover { opacity: 1; }
+
+        @media (max-width: 800px) { .grid-layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="admin-header">
+        <div>
+            <h1 style="margin:0; font-size: 1.5rem;">Panel Administrateur <span style="font-weight: 300;">| SDL</span></h1>
+            <p style="margin:0; font-size: 0.8rem; opacity: 0.9;">Université de Lomé - Semestre {{ user.semestre }}</p>
+        </div>
+        <a href="/logout" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Quitter</a>
+    </div>
+
+    <div class="grid-layout">
+        <div class="card">
+            <h3><i class="fas fa-plus-circle"></i> Nouvelle UE</h3>
+            <form action="/admin/add_matiere" method="POST">
+                <div class="form-group">
+                    <label>Nom de l'UE</label>
+                    <input type="text" name="nom" placeholder="ex: Architecture des Ordinateurs" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Coefficient</label>
+                        <input type="number" name="coeff" step="0.5" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Note Initiale</label>
+                        <input type="number" name="note" step="0.25" value="0" max="20">
+                    </div>
+                </div>
+                <button type="submit" class="btn-add">Ajouter au cursus</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-list-check"></i> Notes de Validation Officielle</h3>
+            <form action="/admin/update_all_notes" method="POST">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>NOM DE L'UE</th>
+                            <th>COEFF</th>
+                            <th>NOTE /20</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for matiere in matieres %}
+                        <tr>
+                            <td style="font-weight: 600; font-size: 0.9rem;">{{ matiere.nom }}</td>
+                            <td>
+                                <input type="number" name="coeff_{{ matiere.id }}" value="{{ matiere.coefficient }}" step="0.5" class="input-table">
+                            </td>
+                            <td>
+                                <input type="number" name="note_{{ matiere.id }}" value="{{ matiere.note }}" step="0.25" 
+                                       class="input-table note-input" 
+                                       style="border-color: {{ 'var(--success)' if matiere.note >= 10 else 'var(--danger)' }};">
+                            </td>
+                            <td style="text-align: right;">
+                                <a href="/admin/delete_matiere/{{ matiere.id }}" class="btn-del" onclick="return confirm('Supprimer cette UE pour tout le monde ?')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button type="submit" class="btn-add" style="margin-top: 25px; background: var(--success);">
+                    <i class="fas fa-cloud-upload-alt"></i> Mettre à jour les notes
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Petit script pour changer la couleur de la bordure en direct
+    document.querySelectorAll('.note-input').forEach(input => {
+        input.addEventListener('input', function() {
+            const val = parseFloat(this.value);
+            if (val >= 10) {
+                this.style.borderColor = 'var(--success)';
+            } else {
+                this.style.borderColor = 'var(--danger)';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
