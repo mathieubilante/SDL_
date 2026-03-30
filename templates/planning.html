@@ -4,219 +4,266 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SDL - PLANIFICATEUR</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body {
-            background: #0f172a;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            padding: 20px;
-            margin: 0;
+        :root {
+            --bg-1: #0b1224;
+            --bg-2: #16213d;
+            --card: #0f1b33cc;
+            --line: #2b3f66;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --brand: #38bdf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            background: 
+                radial-gradient(1200px 600px at 10% -10%, #0ea5e933 0%, transparent 60%),
+                radial-gradient(900px 520px at 100% 120%, #22c55e22 0%, transparent 62%),
+                linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            padding: 22px;
         }
+
+        .container { max-width: 900px; margin: 0 auto; }
 
         .back-link {
-            color: #94a3b8;
+            color: var(--muted);
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 20px;
-            transition: 0.3s;
+            transition: all .25s ease;
         }
 
-        .back-link:hover {
-            color: #3b82f6;
-        }
+        .back-link:hover { color: var(--brand); transform: translateX(-3px); }
 
         .card {
-            background: #1e293b;
-            padding: 40px;
-            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            padding: 38px;
             text-align: center;
-            border: 1px solid #334155;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            background: var(--card);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 20px 45px #02061766;
+            animation: rise .6s ease;
         }
 
-        h2 {
-            color: #3b82f6;
-            margin-bottom: 5px;
-            font-size: 1.8rem;
+        h2 { margin: 0; font-size: clamp(1.6rem, 2.4vw, 2.2rem); color: #e0f2fe; }
+
+        .student-info { color: var(--muted); margin: 10px 0 28px; font-size: .95rem; }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: .9rem;
+            background: #0f172a;
+            margin-bottom: 10px;
         }
 
-        .student-info {
-            color: #94a3b8;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+        }
+
+        .status-dot.running {
+            background: var(--success);
+            box-shadow: 0 0 12px #10b981;
         }
 
         .timer-display {
-            font-size: 5.5rem;
-            font-weight: bold;
-            font-family: 'Courier New', Courier, monospace;
-            color: #10b981;
-            text-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
-            margin: 25px 0;
-            background: #0f172a;
-            padding: 20px;
-            border-radius: 15px;
-            display: inline-block;
-            min-width: 320px;
+            margin: 20px auto 24px;
+            width: min(100%, 460px);
+            font-size: clamp(2.2rem, 9vw, 4.9rem);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #6ee7b7;
+            background: #0b1327;
+            border: 1px solid #24406d;
+            border-radius: 18px;
+            padding: 16px 20px;
+            text-shadow: 0 0 25px #10b98155;
         }
 
         .form-group input {
-            width: 85%;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
+            width: min(100%, 560px);
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid #2f4368;
+            background: #091429;
+            color: var(--text);
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             outline: none;
-            transition: 0.3s;
+            transition: all .25s ease;
         }
 
-        .form-group input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        .form-group input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px #0ea5e933; }
+
+        .quick-tags { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 14px 0 28px; }
+
+        .quick-tag {
+            border: 1px solid #30415f;
+            background: #0f1a32;
+            color: #cbd5e1;
+            border-radius: 999px;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: all .2s ease;
         }
 
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+        .quick-tag:hover { transform: translateY(-2px); border-color: var(--brand); }
+
+        .controls { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
 
         .controls button {
-            padding: 15px 35px;
+            min-width: 160px;
+            padding: 14px 24px;
             font-size: 1rem;
-            border-radius: 12px;
+            border-radius: 14px;
             border: none;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-weight: 600;
+            transition: all .2s ease;
         }
 
-        .btn-start { background: #10b981; color: white; }
-        .btn-start:hover:not(:disabled) { background: #059669; transform: scale(1.05); }
-        .btn-start:disabled { background: #1e293b; color: #475569; cursor: not-allowed; border: 1px solid #334155; }
+        .btn-start { background: var(--success); color: #042f1a; }
+        .btn-pause { background: var(--warning); color: #3a2402; }
+        .btn-stop { background: var(--danger); color: white; }
 
-        .btn-pause { background: #f59e0b; color: white; }
-        .btn-pause:hover { background: #d97706; transform: scale(1.05); }
+        .controls button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        .btn-stop { background: #ef4444; color: white; }
-        .btn-stop:hover { background: #dc2626; transform: scale(1.05); }
+        @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <a href="/index" class="back-link"><i class="fas fa-arrow-left"></i> Retour au Labo</a>
 
-        <div class="card">
-            <h2><i class="fas fa-microscope"></i> Session de Travail Intensif</h2>
-            <p class="student-info">
-                <strong>{{ user.nom }}</strong> | {{ user.filiere }} (Semestre {{ user.semestre }})
-            </p>
+<div class="container">
+    <a href="{{ url_for('index') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Retour au Labo
+    </a>
 
-            <div class="timer-display" id="timer">00:00:00</div>
+    <div class="card">
+        <h2><i class="fas fa-stopwatch"></i> Session de Travail Intensif</h2>
+        <p class="student-info"><strong>{{ user.nom }}</strong> | {{ user.filiere }} (S{{ user.semestre }})</p>
 
-            <div class="form-group">
-                <input type="text" id="taskName" placeholder="Matière ou chapitre (ex: Architecture des Ordinateurs)">
-            </div>
-
-            <div class="controls">
-                <button class="btn-start" id="startBtn" onclick="startTimer()">
-                    <i class="fas fa-play"></i> Démarrer
-                </button>
-                <button class="btn-pause" onclick="pauseTimer()">
-                    <i class="fas fa-pause"></i> Pause
-                </button>
-                <button class="btn-stop" onclick="stopTimer()">
-                    <i class="fas fa-save"></i> Terminer & Enregistrer
-                </button>
-            </div>
+        <div class="status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Prêt à réviser</span>
         </div>
+
+        <div class="timer-display" id="timer">00:00:00</div>
+
+        <div class="form-group">
+            <input type="text" id="taskName" placeholder="Matière ou chapitre (ex: Architecture)" maxlength="80">
+        </div>
+
+        <div class="quick-tags">
+            <button class="quick-tag" data-topic="Mathématiques">Mathématiques</button>
+            <button class="quick-tag" data-topic="Architecture">Architecture</button>
+            <button class="quick-tag" data-topic="Réseaux">Réseaux</button>
+            <button class="quick-tag" data-topic="Projet SDL">Projet SDL</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn-start" id="startBtn"><i class="fas fa-play"></i> Démarrer</button>
+            <button class="btn-pause" id="pauseBtn" disabled><i class="fas fa-pause"></i> Pause</button>
+            <button class="btn-stop" id="stopBtn" disabled><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+
+        <p style="margin-top:20px; font-size:0.8rem; color:var(--muted);">
+            Note : Minimum 1 minute pour que la session soit validée.
+        </p>
     </div>
+</div>
 
-    <script>
-        let startTime = 0, elapsedTime = 0, timerInterval;
-        const timerDisplay = document.getElementById("timer");
-        const startBtn = document.getElementById("startBtn");
+<script>
+    let startTime, elapsedTime = 0, timerInterval;
+    let isRunning = false;
 
-        function timeToString(time) {
-            let diffInHrs = time / 3600000;
-            let hh = Math.floor(diffInHrs);
+    const timerDisplay = document.getElementById("timer");
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const taskInput = document.getElementById("taskName");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
 
-            let diffInMin = (diffInHrs - hh) * 60;
-            let mm = Math.floor(diffInMin);
+    function formatTime(ms) {
+        let s = Math.floor(ms / 1000);
+        let h = Math.floor(s / 3600);
+        let m = Math.floor((s % 3600) / 60);
+        s = s % 60;
+        return [h, m, s].map(v => v.toString().padStart(2, "0")).join(":");
+    }
 
-            let diffInSec = (diffInMin - mm) * 60;
-            let ss = Math.floor(diffInSec);
+    startBtn.onclick = () => {
+        if (isRunning) return;
+        isRunning = true;
+        startTime = Date.now() - elapsedTime;
+        statusDot.classList.add("running");
+        statusText.innerText = "Session en cours...";
+        timerInterval = setInterval(() => {
+            elapsedTime = Date.now() - startTime;
+            timerDisplay.textContent = formatTime(elapsedTime);
+            stopBtn.disabled = elapsedTime < 60000; // Désactivé si < 1 min
+        }, 1000);
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        stopBtn.disabled = elapsedTime < 60000;
+    };
 
-            return `${hh.toString().padStart(2,"0")}:${mm.toString().padStart(2,"0")}:${ss.toString().padStart(2,"0")}`;
-        }
+    pauseBtn.onclick = () => {
+        clearInterval(timerInterval);
+        isRunning = false;
+        statusDot.classList.remove("running");
+        statusText.innerText = "En pause";
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+    };
 
-        function startTimer() {
-            startBtn.disabled = true; // Empêche de lancer plusieurs chronos
-            startTime = Date.now() - elapsedTime;
-            
-            timerInterval = setInterval(function() {
-                elapsedTime = Date.now() - startTime;
-                timerDisplay.textContent = timeToString(elapsedTime);
-            }, 1000);
-        }
+    stopBtn.onclick = () => {
+        const minutes = Math.ceil(elapsedTime / 60000);
+        const task = taskInput.value || "Révision Générale";
 
-        function pauseTimer() {
-            clearInterval(timerInterval);
-            startBtn.disabled = false;
-        }
+        fetch("/api/save_study", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ matiere: task, duree: minutes })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(`Félicitations ! ${minutes} min enregistrées pour ${task}`);
+            window.location.href = "/index";
+        })
+        .catch(err => alert("Erreur de connexion au serveur."));
+    };
 
-        function stopTimer() {
-            clearInterval(timerInterval);
-            startBtn.disabled = false;
+    document.querySelectorAll(".quick-tag").forEach(tag => {
+        tag.onclick = () => { taskInput.value = tag.dataset.topic; };
+    });
+</script>
 
-            let task = document.getElementById("taskName").value || "Révision Générale";
-            let tempsMin = Math.ceil(elapsedTime / 60000); // On arrondit à la minute supérieure
-
-            if (elapsedTime < 10000) { // Si moins de 10 secondes, on n'enregistre pas
-                alert("Session trop courte pour être enregistrée.");
-                resetChrono();
-                return;
-            }
-
-            // Envoi des données au serveur Python (app.py)
-            fetch('/save_session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    matiere: task, 
-                    duree: tempsMin 
-                })
-            })
-            .then(response => {
-                if(response.ok) {
-                    alert("Félicitations ! Session sur '" + task + "' enregistrée (" + tempsMin + " min).");
-                    window.location.href = "/index";
-                } else {
-                    alert("Erreur lors de l'enregistrement.");
-                }
-            })
-            .catch(err => console.error("Erreur Fetch:", err));
-        }
-
-        function resetChrono() {
-            elapsedTime = 0;
-            timerDisplay.textContent = "00:00:00";
-        }
-    </script>
 </body>
 </html>
