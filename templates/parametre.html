@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres - SDL Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617;
+            --card: #0f172a;
+            --accent: #38bdf8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+        body {
+            background: var(--bg);
+            color: rgb(158, 84, 84);
+            font-family: 'Space Grotesk', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+        }
+        .header { margin-bottom: 30px; }
+        .header h1 { font-size: 1.8rem; margin: 0; color: var(--accent); }
+        .back-btn {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .back-btn:hover { color: rgb(168, 182, 145); }
+        
+        .section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #475569;
+            letter-spacing: 1.5px;
+            margin: 25px 0 15px 0;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        label { font-size: 0.85rem; color: #94a3b8; }
+        input, select {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 10px;
+            color: rgb(78, 75, 87);
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent); background: rgba(255,255,255,0.07); }
+
+        .btn-save {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            width: 100%;
+            margin-top: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(56, 189, 248, 0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="{{ url_for('index') }}" class="back-btn"><i class="fas fa-arrow-left"></i> Retour au Dashboard</a>
+        
+        <div class="header">
+            <h1>Configuration du Profil</h1>
+            <p style="color: #64748b; font-size: 0.9rem;">Gérez vos informations personnelles et académiques.</p>
+        </div>
+
+        <form action="{{ url_for('update_all_settings') }}" method="POST">
+            
+            <div class="section-title">Identité</div>
+            <div class="form-grid">
+                <div class="field">
+                    <label>Nom</label>
+                    <input type="text" name="nom" value="{{ user.nom }}">
+                </div>
+                <div class="field">
+                    <label>Prénom</label>
+                    <input type="text" name="prenom" value="{{ user.prenom }}">
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label>Date de naissance</label>
+                    <input type="date" name="naissance" value="{{ user.naissance }}">
+                </div>
+                <div class="field">
+                    <label>Sexe</label>
+                    <select name="sexe">
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section-title">Parcours Académique</div>
+            <div class="field">
+                <label>Filière d'étude</label>
+                <select name="filiere">
+                    <option value="Génie Logiciel" {% if user.filiere == 'Génie Logiciel' %}selected{% endif %}>Génie Logiciel (EPL)</option>
+                    <option value="Système d'Information" {% if user.filiere == "Système d'Information" %}selected{% endif %}>Système d'Information (ESI)</option>
+                    <option value="Réseaux et Télécommunications" {% if user.filiere == "Réseaux et Télécommunications" %}selected{% endif %}>Réseaux et Télécommunications (ERT)</option>
+                    <option value="Intelligence Artificielle" {% if user.filiere == "Intelligence Artificielle" %}selected{% endif %}>Intelligence Artificielle (EIA)</option>
+                </select>
+
+            </div>
+            <div class="field">
+                <label>Niveau actuel</label>
+                <select name="niveau">
+                    <option value="L1">Licence 1</option>
+                    <option value="L2">Licence 2</option>
+                    <option value="L3">Licence 3</option>
+                    <option value="M1">Master 1</option>
+                </select>
+            </div>
+
+            <div class="section-title">Système</div>
+            <div class="field">
+                <label>Langue par défaut</label>
+                <select name="langue">
+                    <option value="fr" {% if user.langue == 'fr' %}selected{% endif %}>Français (FR)</option>
+                    <option value="en" {% if user.langue == 'en' %}selected{% endif %}>English (EN)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-save">Enregistrer les informations</button>
+        </form>
+    </div>
+
+</body>
+</html>

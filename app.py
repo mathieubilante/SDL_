@@ -16,7 +16,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'sd
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 
-# Création du dossier upload s'il n'existe pas
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
@@ -27,12 +26,16 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
+    prenom = db.Column(db.String(100))        # Nouveau
     email = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(200))
     filiere = db.Column(db.String(100))
+    niveau = db.Column(db.String(20))         # Nouveau (L1, L2, etc.)
+    naissance = db.Column(db.String(20))      # Nouveau
+    sexe = db.Column(db.String(10))           # Nouveau
+    langue = db.Column(db.String(5), default='fr') # Nouveau
     semestre = db.Column(db.Integer)
-    # Relation avec les simulations de notes de l'étudiant
     grades = db.relationship('Grade', backref='student', lazy=True)
 
 class MatiereOfficielle(db.Model):
@@ -41,14 +44,14 @@ class MatiereOfficielle(db.Model):
     note = db.Column(db.Float, default=0.0)
     coefficient = db.Column(db.Float, default=1.0)
 
-class Grade(db.Model): # Simulations persos des élèves (pour prediction.html)
+class Grade(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
     matiere = db.Column(db.String(100))
     valeur = db.Column(db.Float)
     coefficient = db.Column(db.Float)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-class StudySession(db.Model): # Historique de révision (pour planning.html)
+class StudySession(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     matiere = db.Column(db.String(100))
@@ -112,12 +115,66 @@ def logout():
     session.clear()
     return redirect(url_for('connexion'))
 
-# --- ESPACE ADMIN (ADMIS.HTML) ---
+# --- ESPACE ÉTUDIANT ---
+
+@app.route('/')
+@app.route('/index')
+def index():
+    if 'user_id' not in session: return redirect(url_for('connexion'))
+    user = User.query.get(session['user_id'])
+    matieres = MatiereOfficielle.query.all()
+    return render_template('index.html', user=user, matieres=matieres)
+
+@app.route('/parametres')
+def parametres():
+    if 'user_id' not in session: return redirect(url_for('connexion'))
+    user = User.query.get(session['user_id'])
+    return render_template('parametre.html', user=user)
+
+@app.route('/update_all_settings', methods=['POST'])
+def update_all_settings():
+    if 'user_id' not in session: return redirect(url_for('connexion'))
+    
+    user = User.query.get(session['user_id'])
+    if user:
+        user.nom = request.form.get('nom')
+        user.prenom = request.form.get('prenom')
+        user.naissance = request.form.get('naissance')
+        user.sexe = request.form.get('sexe')
+        user.filiere = request.form.get('filiere')
+        user.niveau = request.form.get('niveau')
+        user.langue = request.form.get('langue')
+        
+        db.session.commit()
+        flash("Profil mis à jour !", "success")
+    
+    return redirect(url_for('index'))
+
+@app.route('/cours')
+def cours():
+    if 'user_id' not in session: return redirect(url_for('connexion'))
+    user = User.query.get(session['user_id'])
+    return render_template('cours.html', user=user)
+
+@app.route('/prediction')
+def prediction():
+    if 'user_id' not in session: return redirect(url_for('connexion'))
+    user = User.query.get(session['user_id'])
+    matieres_off = MatiereOfficielle.query.all()
+    return render_template('prediction.html', user=user, matieres_off=matieres_off)
+
+@app.route('/programmer')
+def programmer():
+    if 'user_id' not in session: return redirect(url_for('connexion'))
+    user = User.query.get(session['user_id'])
+    sessions = StudySession.query.filter_by(user_id=user.id).order_by(StudySession.date.desc()).all()
+    return render_template('planning.html', user=user, sessions=sessions)
+
+# --- ESPACE ADMIN ---
 
 @app.route('/admin_dashboard')
 def admin_dashboard():
-    if session.get('role') != 'admin':
-        return redirect(url_for('connexion'))
+    if session.get('role') != 'admin': return redirect(url_for('connexion'))
     matieres = MatiereOfficielle.query.all()
     user_fake = {'semestre': 'Gestion Globale'}
     return render_template('admis.html', matieres=matieres, user=user_fake)
@@ -154,38 +211,7 @@ def admin_delete_matiere(id):
         db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
-# --- ESPACE ÉTUDIANT ---
-
-@app.route('/')
-@app.route('/index')
-def index():
-    if 'user_id' not in session: return redirect(url_for('connexion'))
-    user = User.query.get(session['user_id'])
-    matieres = MatiereOfficielle.query.all()
-    return render_template('index.html', user=user, matieres=matieres)
-
-@app.route('/cours')
-def cours():
-    if 'user_id' not in session: return redirect(url_for('connexion'))
-    user = User.query.get(session['user_id'])
-    return render_template('cours.html', user=user)
-
-@app.route('/prediction')
-def prediction():
-    if 'user_id' not in session: return redirect(url_for('connexion'))
-    user = User.query.get(session['user_id'])
-    matieres_off = MatiereOfficielle.query.all()
-    # On passe aussi les notes de simulation propres à l'élève
-    return render_template('prediction.html', user=user, matieres_off=matieres_off)
-
-@app.route('/programmer')
-def programmer():
-    if 'user_id' not in session: return redirect(url_for('connexion'))
-    user = User.query.get(session['user_id'])
-    sessions = StudySession.query.filter_by(user_id=user.id).order_by(StudySession.date.desc()).all()
-    return render_template('planning.html', user=user, sessions=sessions)
-
-# --- API JSON (POUR LE DYNAMISME) ---
+# --- API JSON ---
 
 @app.route('/api/save_study', methods=['POST'])
 def save_study():
@@ -204,7 +230,6 @@ def save_study():
 def update_simulation():
     if 'user_id' not in session: return jsonify({"status": "error"}), 403
     data = request.json
-    # Logique pour ajouter une note à la simulation de l'élève
     new_g = Grade(
         matiere=data.get('matiere'),
         valeur=float(data.get('note')),
