@@ -1,302 +1,281 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ session.get('lang', 'fr') }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDL Portal - Dashboard</title>
-    
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favion_gpt.png') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDL Portal - {{ texts.dashboard }}</title>
 
-    <style>
-        :root {
-            --bg-dark: #020617;
-            --sidebar-bg: #0f172a;
-            --accent: #38bdf8;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --success: #10b981;
-            --danger: #ef4444;
-        }
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favion_gpt.png') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        body {
-            background: var(--bg-dark);
-            font-family: 'Space Grotesk', sans-serif;
-            margin: 0;
-            color: white;
-            display: flex;
-            min-height: 100vh;
-        }
+<style>
+:root{
+--bg-dark:#020617;
+--sidebar-bg:#0f172a;
+--accent:#38bdf8;
+--glass:rgba(255,255,255,0.03);
+--glass-border:rgba(255,255,255,0.08);
+--success:#10b981;
+--danger:#ef4444;
+--text-muted:#94a3b8;
+}
 
-        /* --- SIDEBAR --- */
-        .sidebar {
-            position: fixed;
-            left: 0; top: 0; height: 100%; width: 240px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--glass-border);
-            padding: 25px 15px;
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-        }
+/* GLOBAL */
+body{
+background:var(--bg-dark);
+font-family:'Space Grotesk',sans-serif;
+margin:0;
+color:white;
+display:flex;
+min-height:100vh;
+}
 
-        .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; font-weight: 700; color: var(--accent); text-decoration: none; }
-        .sidebar-logo img { width: 32px; border-radius: 6px; }
+/* SIDEBAR */
+.sidebar{
+position:fixed;
+left:0; top:0; height:100%; width:240px;
+background:var(--sidebar-bg);
+border-right:1px solid var(--glass-border);
+padding:25px 15px;
+display:flex; flex-direction:column;
+z-index:100;
+}
 
-        .sidebar-search { margin-bottom: 25px; position: relative; }
-        .sidebar-search input {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 10px 15px 10px 40px;
-            color: white;
-            font-family: 'Space Grotesk';
-            font-size: 0.85rem;
-            outline: none;
-            transition: 0.3s;
-        }
-        .sidebar-search i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 0.8rem; }
-        .sidebar-search input:focus { border-color: var(--accent); background: rgba(56, 189, 248, 0.05); }
+.sidebar-logo{
+display:flex; align-items:center; gap:10px; margin-bottom:30px;
+font-weight:700; color:var(--accent); text-decoration:none;
+}
+.sidebar-logo img{ width:32px; border-radius:6px; }
 
-        .menu-section { margin-bottom: 30px; }
-        .menu-label { font-size: 0.65rem; color: #475569; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-left: 12px; }
+.menu-section{ margin-bottom:30px; }
+.menu-label{
+font-size:0.65rem; color:#475569; text-transform:uppercase;
+letter-spacing:1px; margin-bottom:10px; padding-left:12px;
+}
 
-        .sidebar-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px;
-            border-radius: 10px; color: #94a3b8; text-decoration: none; transition: 0.3s;
-            margin-bottom: 4px; font-size: 0.9rem; cursor: pointer;
-        }
-        .sidebar-item:hover, .sidebar-item.active { background: rgba(56, 189, 248, 0.1); color: white; }
-        .sidebar-item i { width: 20px; text-align: center; }
+.sidebar-item{
+display:flex; align-items:center; gap:12px; padding:12px;
+border-radius:10px; color:#94a3b8; text-decoration:none;
+transition:0.3s; margin-bottom:4px; font-size:0.9rem; cursor:pointer;
+}
+.sidebar-item:hover, .sidebar-item.active{
+background:rgba(56,189,248,0.1); color:white; transform:translateX(3px);
+}
+.sidebar-item i{ width:20px; text-align:center; }
 
-        /* --- MAIN CONTENT --- */
-        .main-content { margin-left: 240px; flex: 1; padding: 40px; }
+/* TOP BAR NAVIGATION */
+.top-nav {
+    display: flex; justify-content: flex-end; align-items: center;
+    padding: 15px 40px; gap: 25px;
+    background: rgba(2, 6, 23, 0.4); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+    position: sticky; top: 0; z-index: 90;
+}
 
-        .top-nav { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 30px; gap: 25px; }
-        .nav-icon { position: relative; color: #94a3b8; font-size: 1.2rem; cursor: pointer; transition: 0.3s; text-decoration: none; }
-        .nav-icon:hover { color: white; }
-        
-        .notification-dot {
-            position: absolute; top: -2px; right: -2px;
-            width: 8px; height: 8px;
-            background: var(--danger);
-            border-radius: 50%;
-            border: 2px solid var(--bg-dark);
-            animation: pulse 2s infinite;
-        }
+.nav-tool {
+    position: relative; color: var(--text-muted);
+    font-size: 1.1rem; cursor: pointer; transition: 0.3s; text-decoration: none;
+}
+.nav-tool:hover { color: var(--accent); }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
+.notification-badge {
+    position: absolute; top: -4px; right: -4px; width: 7px; height: 7px;
+    background: var(--danger); border-radius: 50%;
+    animation: pulse 2s infinite;
+}
 
-        .hero-banner {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px; padding: 40px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
 
-        .dashboard-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; margin-top: 30px; }
-        .card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px; transition: 0.3s; }
-        .ia-card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(56, 189, 248, 0.15); }
+.user-profile-mini {
+    display: flex; align-items: center; gap: 12px;
+    padding-left: 20px; border-left: 1px solid var(--glass-border);
+}
 
-        .terminal-box {
-            background: #000; border-radius: 12px; padding: 20px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.6;
-            border-left: 3px solid var(--accent);
-        }
+/* MAIN CONTENT AREA */
+.main-wrapper { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+.main-content { padding: 40px; }
 
-        .footer {
-            margin-top: 60px; padding: 40px 0;
-            border-top: 1px solid var(--glass-border);
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
-            font-size: 0.8rem; color: #64748b;
-        }
-    </style>
+/* HERO & CARDS */
+.hero-banner{
+background:var(--glass); border:1px solid var(--glass-border);
+border-radius:24px; padding:40px;
+display:flex; justify-content:space-between; align-items:center;
+}
+
+.dashboard-grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:30px; margin-top:30px; }
+.card{ background:var(--glass); border:1px solid var(--glass-border); border-radius:20px; padding:25px; transition:0.3s; }
+.card:hover{ transform:translateY(-4px); border-color:rgba(56,189,248,0.4); }
+
+.terminal-box{
+background:#000; border-radius:12px; padding:20px;
+font-family:'JetBrains Mono',monospace; font-size:0.8rem;
+border-left:3px solid var(--accent);
+}
+
+.footer{
+margin-top:60px; padding:40px 0; border-top:1px solid var(--glass-border);
+display:grid; grid-template-columns:repeat(4,1fr); gap:20px;
+font-size:0.8rem; color:#64748b;
+}
+
+.lang-select{ background:transparent; border:none; color:#94a3b8; font-family:inherit; font-size:0.85rem; cursor:pointer; outline:none; width:100%; }
+.lang-select option{ background:var(--sidebar-bg); color:white; }
+
+@media (max-width:900px){
+.sidebar{ width:70px; padding:20px 10px; }
+.sidebar span{ display:none; }
+.main-wrapper{ margin-left:70px; }
+.dashboard-grid{ grid-template-columns:1fr; }
+.hero-banner{ flex-direction:column; align-items:flex-start; gap:20px; }
+}
+</style>
 </head>
+
 <body>
 
-    <aside class="sidebar">
-        <a href="{{ url_for('index') }}" class="sidebar-logo">
-            <img src="{{ url_for('static', filename='favion_gpt.png') }}" alt="Logo">
-            <span>SDL Portal</span>
+<aside class="sidebar">
+    <a href="{{ url_for('index') }}" class="sidebar-logo">
+        <img src="{{ url_for('static', filename='favion_gpt.png') }}" alt="SDL Portal Logo">
+        <span>SDL Portal</span>
+    </a>
+
+    <div class="menu-section">
+        <p class="menu-label">Menu</p>
+        <a href="{{ url_for('index') }}" class="sidebar-item active">
+            <i class="fas fa-th-large"></i> <span>{{ texts.dashboard }}</span>
         </a>
+        <a href="{{ url_for('cours') }}" class="sidebar-item">
+            <i class="fas fa-graduation-cap"></i> <span>{{ texts.modules }}</span>
+        </a>
+        <a href="{{ url_for('prediction') }}" class="sidebar-item">
+            <i class="fas fa-microchip"></i> <span>{{ texts.prediction }}</span>
+        </a>
+        <a href="{{ url_for('programmer') }}" class="sidebar-item">
+            <i class="fas fa-clock"></i> <span>{{ texts.deepwork }}</span>
+        </a>
+    </div>
 
-        <div class="sidebar-search">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Rechercher...">
+    <div class="menu-section" style="margin-top:auto;">
+        <p class="menu-label">Config</p>
+        <div class="sidebar-item">
+            <i class="fas fa-globe"></i>
+            <select onchange="location=this.value;" class="lang-select">
+                <option value="{{ url_for('set_language', lang='fr') }}" {{ 'selected' if session.get('lang') == 'fr' }}>Français</option>
+                <option value="{{ url_for('set_language', lang='en') }}" {{ 'selected' if session.get('lang') == 'en' }}>English</option>
+                <option value="{{ url_for('set_language', lang='es') }}" {{ 'selected' if session.get('lang') == 'es' }}>Español</option>
+                <option value="{{ url_for('set_language', lang='de') }}" {{ 'selected' if session.get('lang') == 'de' }}>Deutsch</option>
+                <option value="{{ url_for('set_language', lang='zh') }}" {{ 'selected' if session.get('lang') == 'zh' }}>中文</option>
+            </select>
         </div>
+        <a href="{{ url_for('logout') }}" class="sidebar-item" style="color:var(--danger);">
+            <i class="fas fa-sign-out-alt"></i> <span>{{ texts.logout }}</span>
+        </a>
+    </div>
+</aside>
 
-        <div class="menu-section">
-            <p class="menu-label">Menu Principal</p>
-            <a href="{{ url_for('index') }}" class="sidebar-item active"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
-            <a href="{{ url_for('cours') }}" class="sidebar-item"><i class="fas fa-graduation-cap"></i> <span>Modules</span></a>
-            <a href="{{ url_for('prediction') }}" class="sidebar-item"><i class="fas fa-microchip"></i> <span>IA Prediction</span></a>
-            <a href="{{ url_for('programmer') }}" class="sidebar-item"><i class="fas fa-clock"></i> <span>Deep Work</span></a>
+<div class="main-wrapper">
+    <header class="top-nav">
+        <div class="nav-tool">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge"></span>
         </div>
-
-        <div class="menu-section" style="margin-top: auto;">
-            <p class="menu-label">Configuration</p>
-            <a href="{{ url_for('parametres') }}" class="sidebar-item"><i class="fas fa-sliders-h"></i> <span>Paramètres</span></a>
-            
-            <div class="sidebar-item" style="cursor: default; justify-content: space-between;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <i class="fas fa-globe"></i> <span>Langue</span>
-                </div>
-                <span id="langDisplay" style="background: rgba(56, 189, 248, 0.1); border: 1px solid var(--accent); border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; color: var(--accent); font-family: 'JetBrains Mono';">
-                    {{ user.langue.upper() if (user.langue is defined and user.langue) else 'FR' }}
-                </span>
+        <a href="{{ url_for('parametres') }}" class="nav-tool">
+            <i class="fas fa-cog"></i>
+        </a>
+        <div class="user-profile-mini">
+            <div style="text-align: right; line-height: 1.2;">
+                <p style="margin:0; font-size: 0.85rem; font-weight: 600;">{{ user.username }}</p>
+                <span style="font-size: 0.7rem; color: var(--accent);">{{ user.niveau or 'Étudiant Polytechnique' }}</span>
             </div>
-            <a href="{{ url_for('logout') }}" class="sidebar-item" style="color: var(--danger);"><i class="fas fa-sign-out-alt"></i> <span>Déconnexion</span></a>
+            <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--glass); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; overflow: hidden; color: var(--accent);">
+                <i class="fas fa-user-circle" style="font-size: 1.8rem;"></i>
+            </div>
         </div>
-    </aside>
+    </header>
 
     <main class="main-content">
-        <header class="top-nav">
-            <div class="nav-actions" style="display: flex; gap: 20px; align-items: center;">
-                <div class="nav-icon">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-dot"></span>
-                </div>
-                <a href="{{ url_for('parametres') }}" class="nav-icon">
-                    <i class="fas fa-cog"></i>
-                </a>
-                <div class="nav-icon" style="font-size: 1.5rem; color: var(--accent);">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-            </div>
-        </header>
-
         <section class="hero-banner">
             <div>
-                <p style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 5px;">
-                    Université de Lomé • {{ user.filiere if (user.filiere is defined and user.filiere) else 'Génie Logiciel' }}
+                <p style="color:#64748b;font-size:0.75rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">
+                    Université de Lomé • {{ texts.welcome }}
                 </p>
-                <h2 style="font-size: 2.8rem; margin: 0; font-weight: 800; letter-spacing: -1.5px; line-height: 1.1;">
-                    <span style="color: var(--accent);">{{ user.prenom if (user.prenom is defined and user.prenom) else user.username }}</span> 
-                    {{ user.nom if (user.nom is defined and user.nom) else '' }}
+                <h2 style="font-size:2.8rem;margin:0;font-weight:800;letter-spacing:-1.5px;">
+                    <span style="color:var(--accent);">{{ user.username }}</span>
                 </h2>
-                
-                <div style="width: 350px; margin-top: 30px;">
-                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:10px;">
-                        <span style="color: #94a3b8;">Progression du semestre</span>
-                        <span id="progValue" style="color: var(--accent); font-weight: 700;">0%</span>
+                <div style="width:300px;margin-top:30px;">
+                    <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:10px;">
+                        <span style="color:#94a3b8;">Status</span>
+                        <span id="progValue" style="color:var(--accent);font-weight:700;">0%</span>
                     </div>
-                    <div style="height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; border: 1px solid var(--glass-border);">
-                        <div id="progFill" style="height: 100%; background: linear-gradient(90deg, var(--accent), #818cf8); width: 0%; transition: 1.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                    <div style="height:6px;background:rgba(255,255,255,0.05);border-radius:10px;overflow:hidden;">
+                        <div id="progFill" style="height:100%;background:var(--accent);width:0%;transition:1s;"></div>
                     </div>
                 </div>
             </div>
-
-            <div style="text-align: right; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 20px; border: 1px solid var(--glass-border);">
-                <p id="currentDate" style="color: #64748b; font-size: 0.85rem; margin-bottom: 5px; text-transform: capitalize;"></p>
-                <div id="liveClock" style="font-family: 'JetBrains Mono'; font-size: 3rem; font-weight: 700; color: var(--success); text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);">00:00:00</div>
+            <div style="text-align:right;">
+                <p id="currentDate" style="color:#64748b;font-size:0.85rem;"></p>
+                <div id="liveClock" style="font-family:'JetBrains Mono';font-size:2.5rem;font-weight:700;color:var(--success);">00:00:00</div>
             </div>
         </section>
 
         <div class="dashboard-grid">
             <article class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                    <h3 style="margin:0; font-size: 1.2rem;"><i class="fas fa-list-ol" style="color: var(--accent); margin-right:12px;"></i>Relevé de Notes</h3>
-                    <div style="background: rgba(56, 189, 248, 0.1); color: var(--accent); padding: 6px 14px; border-radius: 12px; font-size: 0.8rem; font-family: 'JetBrains Mono'; border: 1px solid rgba(56, 189, 248, 0.2);">
-                        <i class="fas fa-check-circle"></i> <span id="valides">0</span> / <span id="totalCredits">30</span> ECTS
+                <h3 style="margin-bottom:20px;"><i class="fas fa-list-ol" style="color:var(--accent);margin-right:10px;"></i> Relevé</h3>
+                <div id="grades-container">
+                    {% for m in matieres %}
+                    <div class="matiere-row" data-note="{{ m.note }}" style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <span>{{ m.nom }}</span>
+                        <span style="font-family:'JetBrains Mono';color:{{ 'var(--success)' if m.note >= 10 else 'var(--danger)' }};">{{ m.note }}</span>
                     </div>
-                </div>
-
-                <div style="max-height: 350px; overflow-y: auto; padding-right: 10px;">
-                    {% if matieres %}
-                        {% for m in matieres %}
-                        <div class="matiere-row" data-note="{{ m.note }}" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="width: 8px; height: 8px; border-radius: 50%; background: {{ 'var(--success)' if m.note >= 10 else 'var(--danger)' }};"></div>
-                                <span style="font-size: 0.95rem; font-weight: 500;">{{ m.nom }}</span>
-                            </div>
-                            <span style="font-family: 'JetBrains Mono'; font-weight: 700; font-size: 1rem; color: {{ 'var(--success)' if m.note >= 10 else 'var(--danger)' }};">
-                                {{ '%.2f'|format(m.note) }}
-                            </span>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p style="color: #64748b; text-align: center; padding: 40px; font-style: italic;">Aucune note enregistrée pour le moment.</p>
-                    {% endif %}
+                    {% endfor %}
                 </div>
             </article>
 
-            <article class="card ia-card" style="display: flex; flex-direction: column; gap: 20px;">
-                <h3 style="margin: 0; font-size: 1.2rem;"><i class="fas fa-robot" style="color: var(--accent); margin-right: 12px;"></i>Assistant IA</h3>
+            <article class="card">
+                <h3 style="margin-bottom:20px;"><i class="fas fa-robot" style="color:var(--accent);margin-right:10px;"></i> {{ texts.prediction }}</h3>
                 <div class="terminal-box">
-                    <span style="color: var(--accent);">[SYSTEM ONLINE]</span><br>
-                    <span style="color: #94a3b8;">> Analyse de l'étudiant...</span><br>
-                    <span style="color: white;">> Identité : {{ user.username }}</span><br>
-                    <span style="color: white;">> Niveau : <span style="color: var(--accent);">{{ user.niveau if (user.niveau is defined and user.niveau) else 'Licence 1' }}</span></span><br>
-                    <span style="color: #64748b; font-style: italic;">> En attente du moteur de décision...</span>
-                </div>
-                
-                <div style="background: rgba(56, 189, 248, 0.05); padding: 15px; border-radius: 15px; border: 1px dashed var(--glass-border);">
-                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">L'IA analyse tes résultats pour prédire ton succès au semestre de Harmattan.</p>
+                    <span style="color:var(--accent);">[SYSTEM ONLINE]</span><br>
+                    <span>> User: {{ user.username }}</span><br>
+                    <span style="color:#64748b;">> Analyzing data...</span>
                 </div>
             </article>
         </div>
 
         <footer class="footer">
-            <div>
-                <p style="font-weight: 700; color: #94a3b8; margin-bottom: 12px; font-size: 0.7rem; letter-spacing: 1px;">FACULTÉS</p>
-                <span style="line-height: 1.8;">FDS - Sciences<br>Polytechnique (UL)</span>
-            </div>
-            <div>
-                <p style="font-weight: 700; color: #94a3b8; margin-bottom: 12px; font-size: 0.7rem; letter-spacing: 1px;">RESSOURCES</p>
-                <span style="line-height: 1.8;">Bibliothèque Numérique<br>E-Learning Togo</span>
-            </div>
-            <div>
-                <p style="font-weight: 700; color: #94a3b8; margin-bottom: 12px; font-size: 0.7rem; letter-spacing: 1px;">CONTACT</p>
-                <span style="line-height: 1.8;">Université de Lomé<br>Campus Nord, Lomé</span>
-            </div>
-            <div>
-                <p style="font-weight: 700; color: #94a3b8; margin-bottom: 12px; font-size: 0.7rem; letter-spacing: 1px;">PROJET SDL</p>
-                <span style="line-height: 1.8;">Smart Decision Lab 2026<br>v1.0.6 - Stable</span>
-            </div>
+            <div><p>ECOLE</p><span>Polytechnique (UL)</span></div>
+            <div><p>RESSOURCES</p><span>E-Learning Togo</span></div>
+            <div><p>CONTACT</p><span>Campus Nord, Lomé</span></div>
+            <div><p>PROJET SDL</p><span>v1.0.6 - Stable</span></div>
         </footer>
     </main>
+</div>
 
-    <script>
-        function updateClock() {
-            const now = new Date();
-            document.getElementById("liveClock").textContent = now.toLocaleTimeString("fr-FR");
-            const options = { weekday: 'long', day: 'numeric', month: 'long' };
-            document.getElementById("currentDate").textContent = now.toLocaleDateString("fr-FR", options);
-        }
+<script>
+function updateClock(){
+    const now=new Date();
+    const lang="{{ session.get('lang','fr') }}";
+    document.getElementById("liveClock").textContent=now.toLocaleTimeString(lang);
+    document.getElementById("currentDate").textContent=now.toLocaleDateString(lang,{weekday:'long', day:'numeric', month:'long'});
+}
+setInterval(updateClock,1000);
+updateClock();
 
-        function calculateStats() {
-            const rows = document.querySelectorAll('.matiere-row');
-            let v = 0;
-            rows.forEach(row => {
-                if(parseFloat(row.dataset.note) >= 10) v++;
-            });
-            
-            const creditsParMatiere = 6; 
-            const totalC = rows.length > 0 ? rows.length * creditsParMatiere : 30;
-            const validC = v * creditsParMatiere;
+window.onload=()=>{
+    const rows=document.querySelectorAll('.matiere-row');
+    let valides=0;
+    rows.forEach(r=>{ if(parseFloat(r.dataset.note)>=10) valides++; });
+    let p=rows.length>0?Math.round((valides/rows.length)*100) : 0;
+    document.getElementById('progValue').textContent=p+'%';
+    document.getElementById('progFill').style.width=p+'%';
+};
+</script>
 
-            document.getElementById('valides').textContent = validC;
-            document.getElementById('totalCredits').textContent = totalC;
-
-            let p = rows.length > 0 ? Math.round((validC / totalC) * 100) : 0;
-            document.getElementById('progValue').textContent = p + '%';
-            document.getElementById('progFill').style.width = p + '%';
-        }
-
-        setInterval(updateClock, 1000);
-        updateClock();
-        window.addEventListener('load', () => {
-            setTimeout(calculateStats, 300);
-        });
-    </script>
 </body>
 </html>

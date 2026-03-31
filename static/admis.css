@@ -1,0 +1,14 @@
+/* Contenu de ta balise <style> de admin.html à copier ici */
+:root {
+    --admin-bg: #0f172a;
+    --admin-accent: #8b5cf6;
+    /* ... reste de tes variables ... */
+}
+/* Ajoute cette règle pour le select */
+select.input-table {
+    height: 45px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: white;
+    padding: 0 10px;
+}

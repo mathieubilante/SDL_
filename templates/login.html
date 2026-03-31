@@ -94,10 +94,19 @@
                     <select name="filiere" style="flex: 2;">
                         <option value="Génie Logiciel">Génie Logiciel (EPL)</option>
                         <option value="IA & Big Data">IA & Big Data</option>
-                        <option value="Génie Civil">Génie Civil</option>
+                        <option value="Système d'Information">Système d'Information (ESI)</option>
+                        <option value="Génie Informatique">Génie Informatique</option>
+                        <option value="Génie Civil">Génie Civil</option>    
+                        <option value="Génie Électrique">Génie Électrique</option>
+                        <option value="Génie Mécanique">Génie Mécanique</option>
+                        <option value="Génie Industriel">Génie Industriel</option>
+                        <option value="Génie Chimique">Génie Chimique</option>
+                        <option value="Logistique et Transport">Logistique et Transport</option>
+                        <option value="Réseaux et Télécommunications">Réseaux et Télécommunications (ERT)</option>
+
                     </select>
                     <select name="semestre" style="flex: 1;">
-                        {% for i in range(1, 11) %}
+                        {% for i in range(1, 8) %}
                             <option value="{{ i }}">S{{ i }}</option>
                         {% endfor %}
                     </select>
